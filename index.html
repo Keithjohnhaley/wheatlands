@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Wheatlands — Antiques & Fine Works of Art</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; background: #0a0700; display: flex; align-items: center; justify-content: center; }
+
+.wl-device { width: 100%; max-width: 820px; background: #fff; display: flex; flex-direction: column; height: 100vh; max-height: 600px; font-family: 'EB Garamond', Georgia, serif; color: #1a1208; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+
+.wl-header { display: flex; align-items: center; justify-content: space-between; background: #120d04; padding: 0 20px; height: 54px; flex-shrink: 0; gap: 12px; }
+.wl-logo-wrap { display: flex; flex-direction: column; }
+.wl-logo { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; letter-spacing: 4px; color: #c9a84c; text-transform: uppercase; white-space: nowrap; }
+.wl-tagline { font-size: 9px; letter-spacing: 2px; color: #9a7d50; text-transform: uppercase; white-space: nowrap; }
+
+.wl-search-inner { display: flex; align-items: center; border: 1px solid #6b4f2a; background: #1f1508; padding: 0 10px; gap: 6px; flex: 1; max-width: 320px; }
+.wl-search-inner i { color: #9a7d50; font-size: 15px; flex-shrink: 0; }
+.wl-search-inner input { flex: 1; border: none; outline: none; font-family: 'EB Garamond', serif; font-size: 14px; color: #e8dfc8; background: transparent; padding: 7px 0; }
+.wl-search-inner input::placeholder { color: #6b4f2a; }
+.wl-search-clear { background: none; border: none; color: #9a7d50; cursor: pointer; font-size: 14px; padding: 0; display: none; line-height: 1; }
+.wl-search-clear.visible { display: block; }
+
+.wl-nav { display: flex; background: #120d04; border-bottom: 2px solid #3a2a14; flex-shrink: 0; }
+.wl-nav-btn { font-family: 'Playfair Display', serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #9a7d50; background: none; border: none; padding: 11px 0; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.2s; flex: 1; text-align: center; }
+.wl-nav-btn:hover { color: #c9a84c; }
+.wl-nav-btn.active { color: #c9a84c; border-bottom: 2px solid #c9a84c; }
+
+.wl-status { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #b89a60; padding: 5px 16px; background: #fdf9f3; border-bottom: 1px solid #f0e8d4; flex-shrink: 0; min-height: 24px; }
+
+.wl-body { display: flex; flex: 1; overflow: hidden; }
+
+.wl-sidebar { width: 130px; flex-shrink: 0; background: #fdf9f3; border-right: 1px solid #f0e8d4; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 12px; gap: 10px; }
+.wl-sidebar-title { font-family: 'Playfair Display', serif; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #6b4f2a; text-align: center; line-height: 1.4; }
+.wl-sidebar-divider { width: 24px; height: 1px; background: #d4b98a; }
+.wl-sidebar-counter { font-size: 11px; letter-spacing: 1px; color: #b89a60; text-align: center; }
+.wl-sidebar-tag { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: #c9a84c; background: #2a1e0a; padding: 3px 8px; display: none; }
+.wl-sidebar-tag.visible { display: block; }
+.wl-sidebar-arrows { display: flex; gap: 8px; }
+.wl-arrow-btn { background: none; border: 1px solid #d4b98a; color: #6b4f2a; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: background 0.15s; }
+.wl-arrow-btn:hover { background: #f5ede0; }
+.wl-arrow-btn:disabled { opacity: 0.25; cursor: default; background: none; }
+
+.wl-track-wrap { flex: 1; overflow: hidden; position: relative; cursor: grab; }
+.wl-track-wrap:active { cursor: grabbing; }
+.wl-track { display: flex; transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); will-change: transform; height: 100%; }
+
+.wl-slide { flex: 0 0 100%; height: 100%; display: flex; overflow: hidden; }
+.wl-slide-img { width: 45%; flex-shrink: 0; background: #fff; display: flex; align-items: center; justify-content: center; border-right: 1px solid #f0e8d4; overflow: hidden; }
+.wl-slide-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.wl-slide-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 100%; }
+.wl-slide-placeholder i { font-size: 52px; color: #e0d0b0; }
+.wl-slide-placeholder span { font-size: 10px; letter-spacing: 2px; color: #d4b98a; text-transform: uppercase; }
+
+.wl-slide-detail { flex: 1; padding: 20px 20px 16px; display: flex; flex-direction: column; justify-content: space-between; overflow-y: auto; }
+.wl-slide-category { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: #c9a84c; margin-bottom: 6px; }
+.wl-slide-title { font-family: 'Playfair Display', serif; font-size: 19px; color: #1a1208; font-weight: 500; line-height: 1.25; margin-bottom: 4px; }
+.wl-slide-date { font-size: 11px; letter-spacing: 2px; color: #b89a60; text-transform: uppercase; margin-bottom: 12px; }
+.wl-slide-sdivider { width: 32px; height: 1px; background: #d4b98a; margin-bottom: 12px; }
+.wl-slide-desc { font-size: 14px; color: #4a3a24; line-height: 1.75; flex: 1; margin-bottom: 12px; }
+.wl-slide-dims { font-size: 11px; color: #b89a60; margin-bottom: 14px; }
+.wl-slide-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #f0e8d4; padding-top: 12px; gap: 12px; }
+.wl-slide-price { font-family: 'Playfair Display', serif; font-size: 20px; color: #6b4f2a; font-weight: 500; }
+.wl-slide-price.poa { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #b89a60; }
+.wl-enquire { font-family: 'Playfair Display', serif; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: #6b4f2a; border: 1px solid #d4b98a; padding: 9px 16px; cursor: pointer; background: none; transition: background 0.15s; white-space: nowrap; }
+.wl-enquire:hover { background: #fdf3e3; }
+
+.wl-empty-slide { flex: 0 0 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.wl-empty-msg { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #d4b98a; }
+.wl-empty-sub { font-size: 11px; color: #c4b08a; text-align: center; padding: 0 2rem; line-height: 1.6; }
+
+.wl-loading { flex: 0 0 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+.wl-spinner { width: 28px; height: 28px; border: 2px solid #f0e8d4; border-top-color: #c9a84c; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.wl-loading-msg { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #b89a60; }
+
+.wl-dots { display: flex; justify-content: center; gap: 6px; padding: 7px; background: #fdf9f3; border-top: 1px solid #f0e8d4; flex-shrink: 0; flex-wrap: wrap; min-height: 22px; }
+.wl-dot { width: 6px; height: 6px; border-radius: 50%; background: #d4b98a; cursor: pointer; transition: background 0.2s, transform 0.2s; border: none; padding: 0; }
+.wl-dot.active { background: #c9a84c; transform: scale(1.4); }
+</style>
+</head>
+<body>
+<div class="wl-device">
+  <div class="wl-header">
+    <div class="wl-logo-wrap">
+      <div class="wl-logo">Wheatlands</div>
+      <div class="wl-tagline">Antiques &amp; Fine Works of Art</div>
+    </div>
+    <div class="wl-search-inner">
+      <i class="ti ti-search"></i>
+      <input type="text" id="search-input" placeholder="Search period, material, style…" oninput="onSearch()" autocomplete="off" />
+      <button class="wl-search-clear" id="search-clear" onclick="clearSearch()"><i class="ti ti-x"></i></button>
+    </div>
+  </div>
+
+  <nav class="wl-nav">
+    <button class="wl-nav-btn active" onclick="showSection('collection')">The Collection</button>
+    <button class="wl-nav-btn" onclick="showSection('Furniture')">Furniture</button>
+    <button class="wl-nav-btn" onclick="showSection('Timepieces')">Timepieces</button>
+    <button class="wl-nav-btn" onclick="showSection('Works of Art')">Works of Art</button>
+  </nav>
+
+  <div class="wl-status" id="status-bar">Loading collection…</div>
+
+  <div class="wl-body">
+    <div class="wl-sidebar">
+      <div class="wl-sidebar-title" id="sidebar-title">The Collection</div>
+      <div class="wl-sidebar-divider"></div>
+      <div class="wl-sidebar-counter" id="sidebar-counter"></div>
+      <div class="wl-sidebar-tag" id="sidebar-tag"></div>
+      <div class="wl-sidebar-arrows">
+        <button class="wl-arrow-btn" id="btn-prev" onclick="navigate(-1)">&#8592;</button>
+        <button class="wl-arrow-btn" id="btn-next" onclick="navigate(1)">&#8594;</button>
+      </div>
+    </div>
+    <div class="wl-track-wrap" id="track-wrap">
+      <div class="wl-track" id="track">
+        <div class="wl-loading">
+          <div class="wl-spinner"></div>
+          <div class="wl-loading-msg">Loading collection…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="wl-dots" id="dots"></div>
+</div>
+
+<script>
+const AT_TOKEN = 'pat8OMfJHQ8t1TkwN.21ed8ac3c7c6c1b629bb1d7808d119b5f41744ec4ae7389bd825e1108bdebdfa';
+const AT_BASE  = 'app9wTETFYtyfmRit';
+const AT_TABLE = 'Stock';
+
+const ICONS   = { 'Furniture':'ti-armchair','Timepieces':'ti-clock','Works of Art':'ti-palette' };
+const LABELS  = { collection:'The Collection','Furniture':'Furniture','Timepieces':'Timepieces','Works of Art':'Works of Art' };
+const NAV_SEC = ['collection','Furniture','Timepieces','Works of Art'];
+
+let allItems=[], activeItems=[], currentSection='collection', currentIndex=0, searchQuery='';
+let touchStartX=0, isDragging=false, dragOffset=0;
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+async function fetchStock(){
+  try{
+    setStatus('Loading your collection…');
+    let records=[],offset=null;
+    do{
+      const url=new URL(`https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(AT_TABLE)}`);
+      url.searchParams.set('filterByFormula','{Active}=1');
+      if(offset)url.searchParams.set('offset',offset);
+      const res=await fetch(url,{headers:{Authorization:`Bearer ${AT_TOKEN}`}});
+      if(!res.ok)throw new Error(`${res.status}`);
+      const data=await res.json();
+      records=records.concat(data.records);
+      offset=data.offset;
+    }while(offset);
+
+    allItems=records.map(r=>({
+      title:  r.fields['Title']||'Untitled',
+      date:   r.fields['Period']||'',
+      desc:   r.fields['Description']||'',
+      dims:   r.fields['Dimensions']||'',
+      price:  r.fields['Price']?'$'+Number(r.fields['Price']).toLocaleString():'',
+      poa:    !!r.fields['POA'],
+      section:r.fields['Section']||'Furniture',
+      image:  r.fields['Image']?r.fields['Image'][0].url:null,
+      tags:   r.fields['Tags']||''
+    }));
+
+    setStatus(allItems.length+' piece'+(allItems.length===1?'':'s')+' in the collection');
+    renderSection('collection');
+  }catch(e){
+    setStatus('Could not load — check connection ('+e.message+')');
+    showEmpty('Unable to load','Check your internet connection and refresh the page.');
+  }
+}
+
+function setStatus(m){document.getElementById('status-bar').textContent=m;}
+
+function getFiltered(s){
+  const q=searchQuery.toLowerCase();
+  let items=s==='collection'?shuffle(allItems):allItems.filter(i=>i.section===s);
+  if(!q)return items;
+  return items.filter(i=>{
+    const h=(i.title+' '+i.date+' '+i.desc+' '+i.tags).toLowerCase();
+    return q.split(' ').filter(Boolean).every(w=>h.includes(w));
+  });
+}
+
+function iconFor(s){return ICONS[s]||'ti-box';}
+
+function buildSlide(item){
+  const img=item.image
+    ?`<img src="${item.image}" alt="${item.title.replace(/"/g,'&quot;')}" loading="lazy">`
+    :`<div class="wl-slide-placeholder"><i class="ti ${iconFor(item.section)}"></i><span>Photo coming soon</span></div>`;
+  const price=item.poa
+    ?`<div class="wl-slide-price poa">Price on application</div>`
+    :`<div class="wl-slide-price">${item.price}</div>`;
+  const t=item.title.replace(/'/g,"\\'"),d=item.date.replace(/'/g,"\\'");
+  return `<div class="wl-slide">
+    <div class="wl-slide-img">${img}</div>
+    <div class="wl-slide-detail">
+      <div>
+        <div class="wl-slide-category">${LABELS[item.section]||item.section}</div>
+        <div class="wl-slide-title">${item.title}</div>
+        <div class="wl-slide-date">${item.date}</div>
+        <div class="wl-slide-sdivider"></div>
+        <div class="wl-slide-desc">${item.desc}</div>
+        <div class="wl-slide-dims">${item.dims}</div>
+      </div>
+      <div class="wl-slide-footer">
+        ${price}
+        <button class="wl-enquire" onclick="enquire('${t}','${d}')">Enquire ›</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function showEmpty(msg,sub){
+  document.getElementById('track').innerHTML=`<div class="wl-empty-slide"><div class="wl-empty-msg">${msg}</div>${sub?`<div class="wl-empty-sub">${sub}</div>`:''}</div>`;
+  document.getElementById('dots').innerHTML='';
+  document.getElementById('sidebar-counter').textContent='—';
+  document.getElementById('btn-prev').disabled=true;
+  document.getElementById('btn-next').disabled=true;
+}
+
+function buildDots(n){
+  document.getElementById('dots').innerHTML=Array.from({length:n},(_,i)=>
+    `<button class="wl-dot${i===currentIndex?' active':''}" onclick="goTo(${i})"></button>`).join('');
+}
+
+function updatePos(anim){
+  const t=document.getElementById('track');
+  t.style.transition=anim?'transform 0.35s cubic-bezier(0.4,0,0.2,1)':'none';
+  t.style.transform=`translateX(calc(-${currentIndex*100}% + ${dragOffset}px))`;
+}
+
+function updateUI(){
+  const item=activeItems[currentIndex];
+  document.getElementById('sidebar-title').textContent=LABELS[currentSection]||currentSection;
+  document.getElementById('sidebar-counter').textContent=activeItems.length?(currentIndex+1)+' of '+activeItems.length:'—';
+  const tag=document.getElementById('sidebar-tag');
+  if(currentSection==='collection'&&item){tag.textContent=LABELS[item.section]||item.section;tag.classList.add('visible');}
+  else tag.classList.remove('visible');
+  document.getElementById('btn-prev').disabled=currentIndex===0;
+  document.getElementById('btn-next').disabled=currentIndex>=activeItems.length-1;
+  document.querySelectorAll('.wl-dot').forEach((d,i)=>d.classList.toggle('active',i===currentIndex));
+}
+
+function goTo(i){currentIndex=Math.max(0,Math.min(i,activeItems.length-1));dragOffset=0;updatePos(true);updateUI();}
+function navigate(d){goTo(currentIndex+d);}
+
+function renderSection(s){
+  currentSection=s;activeItems=getFiltered(s);currentIndex=0;dragOffset=0;
+  document.querySelectorAll('.wl-nav-btn').forEach((b,i)=>b.classList.toggle('active',NAV_SEC[i]===s));
+  const track=document.getElementById('track');
+  if(!activeItems.length){showEmpty('No items in this section','Add items in Airtable and tick Active — they appear here instantly.');return;}
+  track.innerHTML=activeItems.map(buildSlide).join('');
+  updatePos(false);buildDots(activeItems.length);updateUI();setupSwipe();
+}
+
+function showSection(s){
+  searchQuery='';document.getElementById('search-input').value='';
+  document.getElementById('search-clear').classList.remove('visible');
+  renderSection(s);
+}
+
+function onSearch(){
+  searchQuery=document.getElementById('search-input').value.trim();
+  document.getElementById('search-clear').classList.toggle('visible',searchQuery.length>0);
+  if(searchQuery){
+    document.querySelectorAll('.wl-nav-btn').forEach(b=>b.classList.remove('active'));
+    activeItems=allItems.filter(i=>{
+      const h=(i.title+' '+i.date+' '+i.desc+' '+i.tags).toLowerCase();
+      return searchQuery.toLowerCase().split(' ').filter(Boolean).every(w=>h.includes(w));
+    });
+    currentSection='collection';currentIndex=0;dragOffset=0;
+    const n=activeItems.length;
+    setStatus(n+(n===1?' result':' results')+' for "'+searchQuery+'"');
+    const track=document.getElementById('track');
+    track.innerHTML=n?activeItems.map(buildSlide).join(''):`<div class="wl-empty-slide"><div class="wl-empty-msg">No items found</div></div>`;
+    updatePos(false);buildDots(n);updateUI();setupSwipe();
+  }else clearSearch();
+}
+
+function clearSearch(){
+  document.getElementById('search-input').value='';searchQuery='';
+  document.getElementById('search-clear').classList.remove('visible');
+  renderSection(currentSection);
+}
+
+function enquire(title,date){alert('Enquiry noted: '+title+(date?' ('+date+')':''));}
+
+function setupSwipe(){
+  const wrap=document.getElementById('track-wrap');
+  wrap.ontouchstart=e=>{touchStartX=e.touches[0].clientX;isDragging=true;document.getElementById('track').style.transition='none';};
+  wrap.ontouchmove=e=>{if(!isDragging)return;e.preventDefault();dragOffset=e.touches[0].clientX-touchStartX;updatePos(false);};
+  wrap.ontouchend=e=>{if(!isDragging)return;isDragging=false;const dx=e.changedTouches[0].clientX-touchStartX;dragOffset=0;goTo(Math.abs(dx)>60?currentIndex+(dx<0?1:-1):currentIndex);};
+  wrap.onmousedown=e=>{touchStartX=e.clientX;isDragging=true;document.getElementById('track').style.transition='none';e.preventDefault();};
+  wrap.onmousemove=e=>{if(!isDragging)return;dragOffset=e.clientX-touchStartX;updatePos(false);};
+  wrap.onmouseup=e=>{if(!isDragging)return;isDragging=false;const dx=e.clientX-touchStartX;dragOffset=0;goTo(Math.abs(dx)>60?currentIndex+(dx<0?1:-1):currentIndex);};
+  wrap.onmouseleave=()=>{if(isDragging){isDragging=false;dragOffset=0;updatePos(true);}};
+}
+
+fetchStock();
+</script>
+</body>
+</html>
