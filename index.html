@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Wheatlands">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Wheatlands — Antiques & Fine Works of Art</title>
@@ -12,9 +12,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { width: 100%; height: 100%; background: #fff; overflow: hidden; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; background: #120d04; overflow: hidden; margin: 0; padding: 0; }
 
-.wl-device { width: 100%; background: #fff; display: flex; flex-direction: column; height: 100vh; height: 100dvh; font-family: 'EB Garamond', Georgia, serif; color: #1a1208; overflow: hidden; }
+.wl-device { width: 100%; background: #fff; display: flex; flex-direction: column; height: 100vh; height: 100dvh; font-family: 'EB Garamond', Georgia, serif; color: #1a1208; overflow: hidden; padding-top: env(safe-area-inset-top); }
 
 .wl-header { display: flex; align-items: center; justify-content: space-between; background: #120d04; padding: 0 20px; height: 54px; flex-shrink: 0; gap: 12px; }
 .wl-logo-wrap { display: flex; flex-direction: column; }
@@ -63,7 +63,7 @@ html, body { width: 100%; height: 100%; background: #fff; overflow: hidden; marg
 
 /* Photo nav dots at bottom of image panel */
 .wl-photo-dots { display: flex; justify-content: center; gap: 5px; padding: 6px 8px; background: #fdf9f3; border-top: 1px solid #f0e8d4; flex-shrink: 0; min-height: 20px; }
-.wl-photo-dot { width: 5px; height: 5px; border-radius: 50%; background: #d4b98a; border: none; padding: 0; cursor: pointer; transition: background 0.2s, transform 0.2s; }
+.wl-photo-dot { width: 8px; height: 8px; border-radius: 50%; background: #d4b98a; border: none; padding: 0; cursor: pointer; transition: background 0.2s, transform 0.2s; }
 .wl-photo-dot.active { background: #c9a84c; transform: scale(1.3); }
 
 /* Up/down tap zones on image for photo navigation */
@@ -72,7 +72,7 @@ html, body { width: 100%; height: 100%; background: #fff; overflow: hidden; marg
 .wl-photo-next { right: 0; }
 .wl-slide-img:hover .wl-photo-prev,
 .wl-slide-img:hover .wl-photo-next { opacity: 1; }
-.wl-photo-prev span, .wl-photo-next span { background: rgba(18,13,4,0.5); color: #c9a84c; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+.wl-photo-prev span, .wl-photo-next span { background: rgba(18,13,4,0.5); color: #ffffff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; }
 
 .wl-slide-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 100%; }
 .wl-slide-placeholder i { font-size: 52px; color: #e0d0b0; }
@@ -90,6 +90,27 @@ html, body { width: 100%; height: 100%; background: #fff; overflow: hidden; marg
 .wl-slide-price.poa { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #b89a60; }
 .wl-enquire { font-family: 'Playfair Display', serif; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: #6b4f2a; border: 1px solid #d4b98a; padding: 9px 16px; cursor: pointer; background: none; transition: background 0.15s; white-space: nowrap; }
 .wl-enquire:hover { background: #fdf3e3; }
+
+/* Enquiry popup */
+.wl-popup-bg { display: none; position: fixed; inset: 0; background: rgba(10,7,2,0.85); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
+.wl-popup-bg.open { display: flex; }
+.wl-popup { background: #fff; width: 100%; max-width: 420px; border-top: 3px solid #c9a84c; padding: 28px 28px 24px; position: relative; }
+.wl-popup-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 22px; color: #b89a60; cursor: pointer; line-height: 1; }
+.wl-popup-close:hover { color: #6b4f2a; }
+.wl-popup-eyebrow { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #c9a84c; margin-bottom: 6px; }
+.wl-popup-title { font-family: 'Playfair Display', serif; font-size: 18px; color: #1a1208; margin-bottom: 6px; line-height: 1.3; }
+.wl-popup-date { font-size: 11px; letter-spacing: 2px; color: #b89a60; text-transform: uppercase; margin-bottom: 20px; }
+.wl-popup-divider { width: 32px; height: 1px; background: #d4b98a; margin-bottom: 20px; }
+.wl-popup-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #6b4f2a; display: block; margin-bottom: 8px; }
+.wl-popup-input { width: 100%; border: 1px solid #d4b98a; padding: 12px 14px; font-family: 'EB Garamond', serif; font-size: 15px; color: #1a1208; outline: none; margin-bottom: 20px; }
+.wl-popup-input:focus { border-color: #c9a84c; }
+.wl-popup-send { width: 100%; font-family: 'Playfair Display', serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #fff; background: #120d04; border: none; padding: 14px; cursor: pointer; transition: background 0.2s; }
+.wl-popup-send:hover { background: #2a1e0a; }
+.wl-popup-success { text-align: center; padding: 10px 0 4px; }
+.wl-popup-success-icon { font-size: 32px; color: #c9a84c; margin-bottom: 10px; }
+.wl-popup-success-msg { font-family: 'Playfair Display', serif; font-size: 16px; color: #1a1208; margin-bottom: 6px; }
+.wl-popup-success-sub { font-size: 13px; color: #b89a60; }
+.wl-popup-price { font-family: 'Playfair Display', serif; font-size: 16px; color: #6b4f2a; margin-bottom: 4px; }
 
 .wl-empty-slide { flex: 0 0 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
 .wl-empty-msg { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #d4b98a; }
@@ -234,7 +255,7 @@ function buildSlide(item, slideIdx){
   const price=item.poa
     ?`<div class="wl-slide-price poa">Price on application</div>`
     :`<div class="wl-slide-price">${item.price}</div>`;
-  const t=item.title.replace(/'/g,"\\'"),d=item.date.replace(/'/g,"\\'");
+  const t=item.title.replace(/'/g,"\\'"),d=item.date.replace(/'/g,"\\'"),desc=item.desc.replace(/'/g,"\\'").replace(/\n/g,' '),pr=item.price.replace(/'/g,"\\'");
 
   return `<div class="wl-slide">
     <div class="wl-slide-img">
@@ -255,7 +276,7 @@ function buildSlide(item, slideIdx){
       </div>
       <div class="wl-slide-footer">
         ${price}
-        <button class="wl-enquire" onclick="enquire('${t}','${d}')">Enquire ›</button>
+        <button class="wl-enquire" onclick="enquire('${t}','${d}','${desc}','${pr}',${item.poa})">Enquire ›</button>
       </div>
     </div>
   </div>`;
@@ -334,7 +355,62 @@ function clearSearch(){
   renderSection(currentSection);
 }
 
-function enquire(title,date){alert('Enquiry noted: '+title+(date?' ('+date+')':''));}
+let currentEnquiryItem = null;
+
+function enquire(title, date, desc, price, poa){
+  currentEnquiryItem = { title, date, desc, price, poa };
+  document.getElementById('popup-item-title').textContent = title;
+  document.getElementById('popup-item-date').textContent = date;
+  const priceEl = document.getElementById('popup-item-price');
+  if(poa==='true'||poa===true){ priceEl.textContent = 'Price on application'; priceEl.style.color='#b89a60'; priceEl.style.fontSize='11px'; priceEl.style.letterSpacing='2px'; priceEl.style.textTransform='uppercase'; }
+  else if(price){ priceEl.textContent = price; priceEl.style.color='#6b4f2a'; priceEl.style.fontSize='16px'; priceEl.style.letterSpacing='0'; priceEl.style.textTransform='none'; }
+  else { priceEl.textContent = ''; }
+  document.getElementById('popup-email').value = '';
+  document.getElementById('popup-phone').value = '';
+  document.getElementById('popup-form-view').style.display = 'block';
+  document.getElementById('popup-success-view').style.display = 'none';
+  document.getElementById('enquiry-popup').classList.add('open');
+  setTimeout(()=>document.getElementById('popup-email').focus(), 100);
+}
+
+function closePopup(){
+  document.getElementById('enquiry-popup').classList.remove('open');
+}
+
+function closePopupOutside(e){
+  if(e.target === document.getElementById('enquiry-popup')) closePopup();
+}
+
+async function sendEnquiry(){
+  const email = document.getElementById('popup-email').value.trim();
+  if(!email || !email.includes('@')){
+    document.getElementById('popup-email').style.borderColor = '#c0392b';
+    document.getElementById('popup-email').focus();
+    return;
+  }
+  document.getElementById('popup-email').style.borderColor = '#d4b98a';
+
+  const phone = document.getElementById('popup-phone').value.trim();
+  const item = currentEnquiryItem;
+  const subject = encodeURIComponent('Wheatlands Enquiry — ' + item.title + (item.date ? ' (' + item.date + ')' : ''));
+  const body = encodeURIComponent(
+    'I am interested in the following piece:\n\n' +
+    item.title + (item.date ? ' (' + item.date + ')' : '') + '\n' +
+    (item.price && !item.poa ? 'Price: ' + item.price + '\n' : item.poa ? 'Price: On application\n' : '') + '\n' +
+    (item.desc || '') + '\n\n' +
+    '---\n' +
+    'Customer email: ' + email + '\n' +
+    (phone ? 'Customer telephone: ' + phone + '\n' : '')
+  );
+
+  // Open mailto — works on iPad and desktop
+  window.location.href = `mailto:keithjohnhaley@hotmail.com?subject=${subject}&body=${body}`;
+
+  // Show success and close after 2 seconds
+  document.getElementById('popup-form-view').style.display = 'none';
+  document.getElementById('popup-success-view').style.display = 'block';
+  setTimeout(()=>closePopup(), 2500);
+}
 
 // Photo gallery navigation within a single item
 const photoIndex = {};
@@ -446,5 +522,29 @@ setInterval(async()=>{
   }
 },10*60*1000);
 </script>
+<!-- Enquiry popup -->
+<div class="wl-popup-bg" id="enquiry-popup" onclick="closePopupOutside(event)">
+  <div class="wl-popup" id="enquiry-inner">
+    <button class="wl-popup-close" onclick="closePopup()">&#215;</button>
+    <div id="popup-form-view">
+      <div class="wl-popup-eyebrow">Enquire about this piece</div>
+      <div class="wl-popup-title" id="popup-item-title"></div>
+      <div class="wl-popup-date" id="popup-item-date"></div>
+      <div class="wl-popup-price" id="popup-item-price"></div>
+      <div class="wl-popup-divider"></div>
+      <label class="wl-popup-label" for="popup-email">Your email address</label>
+      <input class="wl-popup-input" type="email" id="popup-email" placeholder="your@email.com" autocomplete="email" />
+      <label class="wl-popup-label" for="popup-phone">Your telephone number <span style="font-size:10px;color:#b89a60;letter-spacing:1px;text-transform:none;">(optional)</span></label>
+      <input class="wl-popup-input" type="tel" id="popup-phone" placeholder="+1 234 567 8900" autocomplete="tel" />
+      <button class="wl-popup-send" onclick="sendEnquiry()">Send Enquiry</button>
+    </div>
+    <div id="popup-success-view" style="display:none" class="wl-popup-success">
+      <div class="wl-popup-success-icon"><i class="ti ti-circle-check"></i></div>
+      <div class="wl-popup-success-msg">Thank you for your enquiry</div>
+      <div class="wl-popup-success-sub">We will be in touch shortly</div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
