@@ -309,6 +309,48 @@ function setupSwipe(){
 }
 
 fetchStock();
+
+// Silent background refresh every 10 minutes
+setInterval(async()=>{
+  try{
+    let records=[],offset=null;
+    do{
+      const url=new URL(`https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(AT_TABLE)}`);
+      url.searchParams.set('filterByFormula','{Active}=1');
+      if(offset)url.searchParams.set('offset',offset);
+      const res=await fetch(url,{headers:{Authorization:`Bearer ${AT_TOKEN}`}});
+      if(!res.ok)return;
+      const data=await res.json();
+      records=records.concat(data.records);
+      offset=data.offset;
+    }while(offset);
+
+    allItems=records.map(r=>({
+      title:  r.fields['Title']||'Untitled',
+      date:   r.fields['Period']||'',
+      desc:   r.fields['Description']||'',
+      dims:   r.fields['Dimensions']||'',
+      price:  r.fields['Price']?'$'+Number(r.fields['Price']).toLocaleString():'',
+      poa:    !!r.fields['POA'],
+      section:r.fields['Section']||'Furniture',
+      image:  r.fields['Image']?r.fields['Image'][0].url:null,
+      tags:   r.fields['Tags']||''
+    }));
+
+    // Re-render silently without resetting the customer's position
+    const refreshed=getFiltered(currentSection);
+    if(refreshed.length){
+      activeItems=refreshed;
+      if(currentIndex>=activeItems.length)currentIndex=activeItems.length-1;
+      const track=document.getElementById('track');
+      track.innerHTML=activeItems.map(buildSlide).join('');
+      updatePos(false);buildDots(activeItems.length);updateUI();setupSwipe();
+    }
+    setStatus(allItems.length+' piece'+(allItems.length===1?'':'s')+' in the collection');
+  }catch(e){
+    // Silent fail — never disrupt browsing
+  }
+},10*60*1000);
 </script>
 </body>
 </html>
