@@ -53,8 +53,27 @@ html, body { width: 100%; height: 100%; background: #fff; overflow: hidden; marg
 .wl-track { display: flex; transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); will-change: transform; height: 100%; }
 
 .wl-slide { flex: 0 0 100%; height: 100%; display: flex; overflow: hidden; }
-.wl-slide-img { width: 45%; flex-shrink: 0; background: #fff; display: flex; align-items: center; justify-content: center; border-right: 1px solid #f0e8d4; overflow: hidden; }
-.wl-slide-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.wl-slide-img { width: 45%; flex-shrink: 0; background: #fff; display: flex; flex-direction: column; align-items: stretch; border-right: 1px solid #f0e8d4; overflow: hidden; position: relative; }
+
+/* Photo gallery track inside the image panel */
+.wl-photo-track-wrap { flex: 1; overflow: hidden; position: relative; }
+.wl-photo-track { display: flex; height: 100%; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+.wl-photo-frame { flex: 0 0 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #fff; }
+.wl-photo-frame img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+/* Photo nav dots at bottom of image panel */
+.wl-photo-dots { display: flex; justify-content: center; gap: 5px; padding: 6px 8px; background: #fdf9f3; border-top: 1px solid #f0e8d4; flex-shrink: 0; min-height: 20px; }
+.wl-photo-dot { width: 5px; height: 5px; border-radius: 50%; background: #d4b98a; border: none; padding: 0; cursor: pointer; transition: background 0.2s, transform 0.2s; }
+.wl-photo-dot.active { background: #c9a84c; transform: scale(1.3); }
+
+/* Up/down tap zones on image for photo navigation */
+.wl-photo-prev, .wl-photo-next { position: absolute; top: 0; bottom: 20px; width: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; background: none; border: none; opacity: 0; transition: opacity 0.2s; }
+.wl-photo-prev { left: 0; }
+.wl-photo-next { right: 0; }
+.wl-slide-img:hover .wl-photo-prev,
+.wl-slide-img:hover .wl-photo-next { opacity: 1; }
+.wl-photo-prev span, .wl-photo-next span { background: rgba(18,13,4,0.5); color: #c9a84c; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+
 .wl-slide-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 100%; }
 .wl-slide-placeholder i { font-size: 52px; color: #e0d0b0; }
 .wl-slide-placeholder span { font-size: 10px; letter-spacing: 2px; color: #d4b98a; text-transform: uppercase; }
@@ -169,7 +188,7 @@ async function fetchStock(){
       price:  r.fields['Price']?'$'+Number(r.fields['Price']).toLocaleString():'',
       poa:    !!r.fields['POA'],
       section:r.fields['Section']||'Furniture',
-      image:  r.fields['Image']?r.fields['Image'][0].url:null,
+      images: r.fields['Image']?r.fields['Image'].map(img=>img.url):[],
       tags:   r.fields['Tags']||''
     }));
 
@@ -195,16 +214,36 @@ function getFiltered(s){
 
 function iconFor(s){return ICONS[s]||'ti-box';}
 
-function buildSlide(item){
-  const img=item.image
-    ?`<img src="${item.image}" alt="${item.title.replace(/"/g,'&quot;')}" loading="lazy">`
-    :`<div class="wl-slide-placeholder"><i class="ti ${iconFor(item.section)}"></i><span>Photo coming soon</span></div>`;
+function buildSlide(item, slideIdx){
+  const imgs = item.images||[];
+  const hasPhotos = imgs.length > 0;
+  const sid = 'ph-'+slideIdx;
+
+  const photoTrack = hasPhotos
+    ? imgs.map(url=>`<div class="wl-photo-frame"><img src="${url}" alt="${item.title.replace(/"/g,'&quot;')}" loading="lazy"></div>`).join('')
+    : `<div class="wl-photo-frame"><div class="wl-slide-placeholder"><i class="ti ${iconFor(item.section)}"></i><span>Photo coming soon</span></div></div>`;
+
+  const photoDots = imgs.length > 1
+    ? `<div class="wl-photo-dots" id="${sid}-dots">${imgs.map((_,i)=>`<button class="wl-photo-dot${i===0?' active':''}" onclick="photoGoTo('${sid}',${i})"></button>`).join('')}</div>`
+    : `<div class="wl-photo-dots"></div>`;
+
+  const photoNav = imgs.length > 1 ? `
+    <button class="wl-photo-prev" onclick="photoGoTo('${sid}','prev')"><span>&#8593;</span></button>
+    <button class="wl-photo-next" onclick="photoGoTo('${sid}','next')"><span>&#8595;</span></button>` : '';
+
   const price=item.poa
     ?`<div class="wl-slide-price poa">Price on application</div>`
     :`<div class="wl-slide-price">${item.price}</div>`;
   const t=item.title.replace(/'/g,"\\'"),d=item.date.replace(/'/g,"\\'");
+
   return `<div class="wl-slide">
-    <div class="wl-slide-img">${img}</div>
+    <div class="wl-slide-img">
+      ${photoNav}
+      <div class="wl-photo-track-wrap">
+        <div class="wl-photo-track" id="${sid}-track">${photoTrack}</div>
+      </div>
+      ${photoDots}
+    </div>
     <div class="wl-slide-detail">
       <div>
         <div class="wl-slide-category">${LABELS[item.section]||item.section}</div>
@@ -261,7 +300,7 @@ function renderSection(s){
   document.querySelectorAll('.wl-nav-btn').forEach((b,i)=>b.classList.toggle('active',NAV_SEC[i]===s));
   const track=document.getElementById('track');
   if(!activeItems.length){showEmpty('No items in this section','Add items in Airtable and tick Active — they appear here instantly.');return;}
-  track.innerHTML=activeItems.map(buildSlide).join('');
+  track.innerHTML=activeItems.map((item,i)=>buildSlide(item,i)).join('');
   updatePos(false);buildDots(activeItems.length);updateUI();setupSwipe();
 }
 
@@ -284,7 +323,7 @@ function onSearch(){
     const n=activeItems.length;
     setStatus(n+(n===1?' result':' results')+' for "'+searchQuery+'"');
     const track=document.getElementById('track');
-    track.innerHTML=n?activeItems.map(buildSlide).join(''):`<div class="wl-empty-slide"><div class="wl-empty-msg">No items found</div></div>`;
+    track.innerHTML=n?activeItems.map((item,i)=>buildSlide(item,i)).join(''):`<div class="wl-empty-slide"><div class="wl-empty-msg">No items found</div></div>`;
     updatePos(false);buildDots(n);updateUI();setupSwipe();
   }else clearSearch();
 }
@@ -297,15 +336,70 @@ function clearSearch(){
 
 function enquire(title,date){alert('Enquiry noted: '+title+(date?' ('+date+')':''));}
 
+// Photo gallery navigation within a single item
+const photoIndex = {};
+function photoGoTo(sid, target){
+  const track = document.getElementById(sid+'-track');
+  const dots  = document.getElementById(sid+'-dots');
+  if(!track) return;
+  const count = track.children.length;
+  if(!count) return;
+  let idx = photoIndex[sid]||0;
+  if(target==='prev') idx = Math.max(0, idx-1);
+  else if(target==='next') idx = Math.min(count-1, idx+1);
+  else idx = target;
+  photoIndex[sid] = idx;
+  track.style.transform = `translateX(-${idx*100}%)`;
+  if(dots) dots.querySelectorAll('.wl-photo-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+}
+
 function setupSwipe(){
   const wrap=document.getElementById('track-wrap');
-  wrap.ontouchstart=e=>{touchStartX=e.touches[0].clientX;isDragging=true;document.getElementById('track').style.transition='none';};
-  wrap.ontouchmove=e=>{if(!isDragging)return;e.preventDefault();dragOffset=e.touches[0].clientX-touchStartX;updatePos(false);};
-  wrap.ontouchend=e=>{if(!isDragging)return;isDragging=false;const dx=e.changedTouches[0].clientX-touchStartX;dragOffset=0;goTo(Math.abs(dx)>60?currentIndex+(dx<0?1:-1):currentIndex);};
-  wrap.onmousedown=e=>{touchStartX=e.clientX;isDragging=true;document.getElementById('track').style.transition='none';e.preventDefault();};
-  wrap.onmousemove=e=>{if(!isDragging)return;dragOffset=e.clientX-touchStartX;updatePos(false);};
-  wrap.onmouseup=e=>{if(!isDragging)return;isDragging=false;const dx=e.clientX-touchStartX;dragOffset=0;goTo(Math.abs(dx)>60?currentIndex+(dx<0?1:-1):currentIndex);};
-  wrap.onmouseleave=()=>{if(isDragging){isDragging=false;dragOffset=0;updatePos(true);}};
+  let startX=0,startY=0,dragging=false,photoTouchSid=null,photoTouchStartY=0;
+
+  wrap.ontouchstart=e=>{
+    startX=e.touches[0].clientX;startY=e.touches[0].clientY;dragging=false;
+    // check if touch is in a photo panel
+    const photoWrap=e.target.closest('.wl-photo-track-wrap');
+    if(photoWrap){
+      const slide=photoWrap.closest('.wl-slide');
+      const slides=document.getElementById('track').children;
+      for(let i=0;i<slides.length;i++){if(slides[i]===slide){photoTouchSid='ph-'+i;break;}}
+      photoTouchStartY=e.touches[0].clientY;
+    } else { photoTouchSid=null; }
+    document.getElementById('track').style.transition='none';
+  };
+
+  wrap.ontouchmove=e=>{
+    const dx=e.touches[0].clientX-startX;
+    const dy=e.touches[0].clientY-startY;
+    if(photoTouchSid && Math.abs(dy)>Math.abs(dx)){
+      // vertical — photo scroll
+      e.preventDefault();
+    } else if(Math.abs(dx)>Math.abs(dy)){
+      // horizontal — item scroll
+      e.preventDefault();
+      dragging=true;
+      dragOffset=dx;updatePos(false);
+    }
+  };
+
+  wrap.ontouchend=e=>{
+    const dx=e.changedTouches[0].clientX-startX;
+    const dy=e.changedTouches[0].clientY-startY;
+    if(photoTouchSid && Math.abs(dy)>Math.abs(dx) && Math.abs(dy)>40){
+      photoGoTo(photoTouchSid, dy<0?'next':'prev');
+      photoTouchSid=null;return;
+    }
+    dragging=false;dragOffset=0;
+    goTo(Math.abs(dx)>60?currentIndex+(dx<0?1:-1):currentIndex);
+    photoTouchSid=null;
+  };
+
+  wrap.onmousedown=e=>{startX=e.clientX;dragging=true;document.getElementById('track').style.transition='none';e.preventDefault();};
+  wrap.onmousemove=e=>{if(!dragging)return;dragOffset=e.clientX-startX;updatePos(false);};
+  wrap.onmouseup=e=>{if(!dragging)return;dragging=false;const dx=e.clientX-startX;dragOffset=0;goTo(Math.abs(dx)>60?currentIndex+(dx<0?1:-1):currentIndex);};
+  wrap.onmouseleave=()=>{if(dragging){dragging=false;dragOffset=0;updatePos(true);}};
 }
 
 fetchStock();
@@ -333,7 +427,7 @@ setInterval(async()=>{
       price:  r.fields['Price']?'$'+Number(r.fields['Price']).toLocaleString():'',
       poa:    !!r.fields['POA'],
       section:r.fields['Section']||'Furniture',
-      image:  r.fields['Image']?r.fields['Image'][0].url:null,
+      images: r.fields['Image']?r.fields['Image'].map(img=>img.url):[],
       tags:   r.fields['Tags']||''
     }));
 
@@ -343,7 +437,7 @@ setInterval(async()=>{
       activeItems=refreshed;
       if(currentIndex>=activeItems.length)currentIndex=activeItems.length-1;
       const track=document.getElementById('track');
-      track.innerHTML=activeItems.map(buildSlide).join('');
+      track.innerHTML=activeItems.map((item,i)=>buildSlide(item,i)).join('');
       updatePos(false);buildDots(activeItems.length);updateUI();setupSwipe();
     }
     setStatus(allItems.length+' piece'+(allItems.length===1?'':'s')+' in the collection');
