@@ -91,7 +91,27 @@ html, body { width: 100%; height: 100%; background: #120d04; overflow: hidden; m
 .wl-enquire { font-family: 'Playfair Display', serif; font-size: 15px; letter-spacing: 2.5px; text-transform: uppercase; color: #6b4f2a; border: 1px solid #d4b98a; padding: 13px 24px; cursor: pointer; background: none; transition: background 0.15s; white-space: nowrap; }
 .wl-enquire:hover { background: #fdf3e3; }
 
-/* Enquiry popup */
+/* Search results popup */
+.wl-search-popup-bg { display: none; position: fixed; inset: 0; background: rgba(10,7,2,0.85); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
+.wl-search-popup-bg.open { display: flex; }
+.wl-search-popup { background: #fff; width: 100%; max-width: 560px; max-height: 70vh; border-top: 3px solid #c9a84c; position: relative; display: flex; flex-direction: column; }
+.wl-search-popup-header { padding: 18px 20px 14px; border-bottom: 1px solid #f0e8d4; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
+.wl-search-popup-eyebrow { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #c9a84c; }
+.wl-search-popup-count { font-size: 11px; letter-spacing: 1px; color: #b89a60; }
+.wl-search-popup-close { background: none; border: none; font-size: 22px; color: #b89a60; cursor: pointer; line-height: 1; padding: 0; }
+.wl-search-popup-close:hover { color: #6b4f2a; }
+.wl-search-results-list { overflow-y: auto; flex: 1; }
+.wl-search-result { display: flex; align-items: center; gap: 14px; padding: 10px 20px; border-bottom: 1px solid #f8f3ec; cursor: pointer; transition: background 0.15s; }
+.wl-search-result:hover { background: #fdf9f3; }
+.wl-search-result:last-child { border-bottom: none; }
+.wl-search-result-thumb { width: 56px; height: 56px; flex-shrink: 0; background: #f8f3ec; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.wl-search-result-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.wl-search-result-thumb i { font-size: 22px; color: #d4b98a; }
+.wl-search-result-title { font-family: 'Playfair Display', serif; font-size: 14px; color: #1a1208; flex: 1; line-height: 1.3; }
+.wl-search-result-date { font-size: 10px; letter-spacing: 1px; color: #b89a60; text-transform: uppercase; margin-top: 2px; }
+.wl-search-result-price { font-family: 'Playfair Display', serif; font-size: 14px; color: #6b4f2a; white-space: nowrap; flex-shrink: 0; }
+.wl-search-result-price.poa { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: #b89a60; }
+.wl-search-no-results { padding: 32px 20px; text-align: center; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #d4b98a; }
 .wl-popup-bg { display: none; position: fixed; inset: 0; background: rgba(10,7,2,0.85); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
 .wl-popup-bg.open { display: flex; }
 .wl-popup { background: #fff; width: 100%; max-width: 420px; border-top: 3px solid #c9a84c; padding: 28px 28px 24px; position: relative; }
@@ -334,24 +354,70 @@ function showSection(s){
 function onSearch(){
   searchQuery=document.getElementById('search-input').value.trim();
   document.getElementById('search-clear').classList.toggle('visible',searchQuery.length>0);
-  if(searchQuery){
-    document.querySelectorAll('.wl-nav-btn').forEach(b=>b.classList.remove('active'));
-    activeItems=allItems.filter(i=>{
-      const h=(i.title+' '+i.date+' '+i.desc+' '+i.tags).toLowerCase();
-      return searchQuery.toLowerCase().split(' ').filter(Boolean).every(w=>h.includes(w));
-    });
-    currentSection='collection';currentIndex=0;dragOffset=0;
-    const n=activeItems.length;
-    setStatus(n+(n===1?' result':' results')+' for "'+searchQuery+'"');
-    const track=document.getElementById('track');
-    track.innerHTML=n?activeItems.map((item,i)=>buildSlide(item,i)).join(''):`<div class="wl-empty-slide"><div class="wl-empty-msg">No items found</div></div>`;
-    updatePos(false);buildDots(n);updateUI();setupSwipe();
-  }else clearSearch();
+  if(searchQuery.length<2){ closeSearchPopup(); return; }
+
+  const results=allItems.filter(i=>{
+    const h=(i.title+' '+i.date+' '+i.desc).toLowerCase();
+    return searchQuery.toLowerCase().split(' ').filter(Boolean).every(w=>h.includes(w));
+  });
+
+  const list=document.getElementById('search-results-list');
+  const count=document.getElementById('search-popup-count');
+  count.textContent=results.length+(results.length===1?' piece found':' pieces found');
+
+  if(!results.length){
+    list.innerHTML='<div class="wl-search-no-results">No items found</div>';
+  } else {
+    list.innerHTML=results.map((item,i)=>{
+      const thumb=item.images&&item.images.length
+        ?`<img src="${item.images[0]}" alt="${item.title.replace(/"/g,'&quot;')}" loading="lazy">`
+        :`<i class="ti ${ICONS[item.section]||'ti-box'}"></i>`;
+      const price=item.poa
+        ?`<div class="wl-search-result-price poa">POA</div>`
+        :`<div class="wl-search-result-price">${item.price}</div>`;
+      return `<div class="wl-search-result" onclick="selectSearchResult(${allItems.indexOf(item)})">
+        <div class="wl-search-result-thumb">${thumb}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="wl-search-result-title">${item.title}</div>
+          <div class="wl-search-result-date">${item.date}</div>
+        </div>
+        ${price}
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('search-popup').classList.add('open');
+}
+
+function selectSearchResult(itemIdx){
+  const item=allItems[itemIdx];
+  if(!item)return;
+  closeSearchPopup();
+  clearSearch();
+  // Find which section this item belongs to and navigate to it
+  currentSection=item.section;
+  document.querySelectorAll('.wl-nav-btn').forEach((b,i)=>b.classList.toggle('active',NAV_SEC[i]===item.section));
+  activeItems=allItems.filter(i=>i.section===item.section);
+  currentIndex=activeItems.indexOf(item);
+  if(currentIndex<0)currentIndex=0;
+  dragOffset=0;
+  const track=document.getElementById('track');
+  track.innerHTML=activeItems.map((it,i)=>buildSlide(it,i)).join('');
+  updatePos(false);buildDots(activeItems.length);updateUI();setupSwipe();
+}
+
+function closeSearchPopup(){
+  document.getElementById('search-popup').classList.remove('open');
+}
+
+function closeSearchPopupOutside(e){
+  if(e.target===document.getElementById('search-popup'))closeSearchPopup();
 }
 
 function clearSearch(){
   document.getElementById('search-input').value='';searchQuery='';
   document.getElementById('search-clear').classList.remove('visible');
+  closeSearchPopup();
   renderSection(currentSection);
 }
 
@@ -522,6 +588,20 @@ setInterval(async()=>{
   }
 },10*60*1000);
 </script>
+<!-- Search results popup -->
+<div class="wl-search-popup-bg" id="search-popup" onclick="closeSearchPopupOutside(event)">
+  <div class="wl-search-popup">
+    <div class="wl-search-popup-header">
+      <div>
+        <div class="wl-search-popup-eyebrow">Search Results</div>
+        <div class="wl-search-popup-count" id="search-popup-count"></div>
+      </div>
+      <button class="wl-search-popup-close" onclick="closeSearchPopup()">&#215;</button>
+    </div>
+    <div class="wl-search-results-list" id="search-results-list"></div>
+  </div>
+</div>
+
 <!-- Enquiry popup -->
 <div class="wl-popup-bg" id="enquiry-popup" onclick="closePopupOutside(event)">
   <div class="wl-popup" id="enquiry-inner">
