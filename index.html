@@ -16,7 +16,7 @@ html, body { width: 100%; height: 100%; background: #120d04; overflow: hidden; m
 
 .wl-device { width: 100%; background: #fff; display: flex; flex-direction: column; height: 100vh; height: 100dvh; font-family: 'EB Garamond', Georgia, serif; color: #1a1208; overflow: hidden; padding-top: env(safe-area-inset-top); }
 
-.wl-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; background: #120d04; padding: 0 20px; height: 70px; flex-shrink: 0; gap: 12px; }
+.wl-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; background: #120d04; padding: 0 20px; height: 70px; flex-shrink: 0; gap: 12px; position: relative; z-index: 600; }
 .wl-logo-wrap { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
 .wl-logo { font-family: 'Playfair Display', serif; font-size: 27px; font-weight: 700; letter-spacing: 4px; color: #c9a84c; text-transform: uppercase; white-space: nowrap; }
 .wl-tagline { font-size: 9px; letter-spacing: 2px; color: #9a7d50; text-transform: uppercase; white-space: nowrap; }
@@ -29,7 +29,7 @@ html, body { width: 100%; height: 100%; background: #120d04; overflow: hidden; m
 .wl-search-clear.visible { display: block; }
 
 .wl-nav { display: flex; background: #120d04; border-bottom: 2px solid #3a2a14; flex-shrink: 0; }
-.wl-nav-btn { font-family: 'Playfair Display', serif; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; color: #9a7d50; background: none; border: none; padding: 11px 0; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.2s; flex: 1; text-align: center; }
+.wl-nav-btn { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #9a7d50; background: none; border: none; padding: 11px 0; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.2s; flex: 1; text-align: center; }
 .wl-nav-btn:hover { color: #c9a84c; }
 .wl-nav-btn.active { color: #c9a84c; border-bottom: 2px solid #c9a84c; }
 
@@ -92,7 +92,7 @@ html, body { width: 100%; height: 100%; background: #120d04; overflow: hidden; m
 .wl-enquire:hover { background: #fdf3e3; }
 
 /* Search results popup */
-.wl-search-popup-bg { display: none; position: fixed; inset: 0; background: rgba(10,7,2,0.85); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
+.wl-search-popup-bg { display: none; position: fixed; inset: 0; background: rgba(10,7,2,0.85); z-index: 500; align-items: flex-start; justify-content: center; padding: 20px; padding-top: 90px; }
 .wl-search-popup-bg.open { display: flex; }
 .wl-search-popup { background: #fff; width: 100%; max-width: 560px; max-height: 70vh; border-top: 3px solid #c9a84c; position: relative; display: flex; flex-direction: column; }
 .wl-search-popup-header { padding: 18px 20px 14px; border-bottom: 1px solid #f0e8d4; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
@@ -155,7 +155,7 @@ html, body { width: 100%; height: 100%; background: #120d04; overflow: hidden; m
     </div>
     <div class="wl-search-inner">
       <i class="ti ti-search"></i>
-      <input type="text" id="search-input" placeholder="Search period, material, style…" oninput="onSearch()" autocomplete="off" />
+      <input type="text" id="search-input" placeholder="Search period, material, style…" oninput="onSearch()" onkeydown="if(event.key==='Enter'){this.blur();onSearch();}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
       <button class="wl-search-clear" id="search-clear" onclick="clearSearch()"><i class="ti ti-x"></i></button>
     </div>
   </div>
